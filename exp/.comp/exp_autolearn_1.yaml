@@ -1,0 +1,19 @@
+name: Case Study - Autolearn
+env:
+  test_source_base: /home/mlcask/sgx/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+branches:
+  - master
+datasets:
+  - dataset_autolearn
+libraries:
+  - autolearn_IG_v0.0
+  - autolearn_IG_v0.0
+  - autolearn_dependent_regression_v0.0
+  - autolearn_dependent_regression_v0.0
+  - autolearn_stable_v0.0
+  - autolearn_stable_v0.0
+  - autolearn_model_v0.0
+  - autolearn_model_v0.0
+tasks:
+  - action: commit_libs

@@ -1,0 +1,16 @@
+name: Case Study - Autolearn
+env:
+  test_source_base: /home/mlcask/sgx/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+branches:
+  - master
+pipeline:
+  - { type: dataset, name: dataset_autolearn }
+  - { type: library, name: autolearn_dependent_regression }
+tasks:
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 1]]

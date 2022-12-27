@@ -1,0 +1,27 @@
+name: Case Study - MLP2
+env:
+  test_source_base: /nfs/host/sgx/seccask/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_mlp2
+libraries:
+  - mlp_ingest_v0
+  - mlp_ingest_v0
+  - mlp_split_v0
+  - mlp_split_v0
+  - mlp_transform_v0
+  - mlp_transform_v0
+  - mlp_train_validate_v0
+  - mlp_train_validate_v0
+pipeline:
+  - { type: dataset, name: dataset_mlp2 }
+  - { type: library, name: mlp_ingest }
+  - { type: library, name: mlp_split }
+  - { type: library, name: mlp_transform }
+  - { type: library, name: mlp_train_validate }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1], [0, 1], [0, 1]]

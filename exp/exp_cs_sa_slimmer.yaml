@@ -1,0 +1,39 @@
+name: Case Study (Slimmer) - Sentiment Analysis with LDA-Reg
+env:
+  test_source_base: /home/mlcask/sgx/test-source-enc/
+  workspace_base: /home/mlcask/seccask-temp/
+branches:
+  - master
+  - dev
+datasets:
+  - dataset_sentiment_analysis
+libraries:
+  - sentiment_analysis_generate_vector_v0.0
+  - sentiment_analysis_generate_vector_v1.0
+  - sentiment_analysis_MLP_v0.0
+  - sentiment_analysis_MLP_v0.1
+  - sentiment_analysis_MLP_v0.2
+  - sentiment_analysis_MLP_v0.3
+  - sentiment_analysis_MLP_v0.4
+pipeline:
+  - { type: dataset, name: dataset_sentiment_analysis }
+  - { type: library, name: sentiment_analysis_generate_vector }
+  - { type: library, name: sentiment_analysis_MLP }
+tasks:
+  - action: commit_libs
+
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 1]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 2]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 3]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 4]]

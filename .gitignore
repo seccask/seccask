@@ -1,0 +1,12 @@
+build/
+install/
+doc/
+.vscode/
+__pycache__/
+extern/
+test/
+
+gramine_manifest/seccask.manifest
+gramine_manifest/seccask.manifest.sgx
+gramine_manifest/seccask.sig
+gramine_manifest/seccask.token

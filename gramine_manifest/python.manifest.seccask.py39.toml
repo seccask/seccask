@@ -1,0 +1,109 @@
+loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "{{ entrypoint }}"
+
+# Gramine log level
+loader.log_level = "{{ log_level }}"
+
+# Read application arguments directly from the command line. Don't use this on production!
+loader.insecure__use_cmdline_argv = true
+loader.insecure__use_host_env = true
+sys.insecure__allow_eventfd = true
+
+# Environment variables for Python
+loader.env.SGX = "1"                                                                                                                                                     # Enable In-SGX mode for SecCask Workers
+loader.env.LD_LIBRARY_PATH = "{{ app_home }}/src/thirdparty/ustore_release/lib:/lib:/{{ python.get_paths().data }}/lib:{{ arch_libdir }}:/usr/lib:/usr{{ arch_libdir }}"
+loader.env.PATH = "{{ python.get_paths().data }}/bin:/usr/bin:/usr/local/bin/:/bin:{{ app_home }}:{{ arch_libdir }}:{{ execdir }}"
+loader.env.APP_HOME = "{{ app_home }}"
+loader.env.HOME = "{{ home }}"
+loader.env.PYTHONPATH = "{{ app_home }}/pysrc:{{ python.get_paths().data }}/lib/python3.9/site-packages:{{ pyzmq_home }}"
+loader.env.OMP_NUM_THREADS = "8"
+loader.env.PYTHONDONTWRITEBYTECODE = "1"
+loader.env.HDF5_USE_FILE_LOCKING = "FALSE"
+
+
+# Mounted FSes. The following "chroot" FSes mount a part of the host FS into the
+# guest. Other parts of the host FS will not be available in the guest.
+fs.mounts = [
+    # Default glibc files, mounted from the Runtime directory in GramineDIR.
+    { type = "chroot", uri = "file:{{ gramine.runtimedir() }}", path = "/lib" },
+    # Host-level libraries (e.g., /lib/x86_64-linux-gnu) required by the Python executable
+    { type = "chroot", uri = "file:{{ arch_libdir }}", path = "{{ arch_libdir }}" },
+    # Host-level directory (/usr) required by the Python executable
+    { type = "chroot", uri = "file:/usr", path = "/usr" },
+    # Mount $PYTHONHOME
+    { type = "chroot", uri = "file:{{ python.get_paths().data }}", path = "{{ python.get_paths().data }}" },
+    # Mount $PYTHONDISTHOME
+    { type = "chroot", uri = "file:{{ python.stdlib }}", path = "{{ python.stdlib }}" },
+    # Mount /tmp
+    { type = "chroot", uri = "file:/tmp", path = "/tmp" },
+    # Mount /etc
+    { type = "chroot", uri = "file:/etc", path = "/etc" },
+
+    ### SecCask Specified
+    # Mount $APP_HOME
+    { type = "chroot", uri = "file:{{ app_home }}", path = "{{ app_home }}" },
+    # Mount temp-path
+    { type = "chroot", uri = "file:{{ home }}/seccask-temp", path = "{{ home }}/seccask-temp" },
+    # Mount host FS
+    # { type = "chroot", uri = "file:/nfs/host", path = "/nfs/host" },
+    # Mount /bin
+    { type = "chroot", uri = "file:{{ execdir }}", path = "{{ execdir }}" },
+]
+
+### Gramine general settings ###
+
+# Normal
+loader.pal_internal_mem_size = "128M"
+sys.stack.size = "1M"
+sgx.enclave_size = "4G"
+sgx.thread_num = 32
+sgx.nonpie_binary = true
+sgx.static_address = true
+
+# For TF2 DenseNet
+#loader.pal_internal_mem_size = "128M"
+#sys.stack.size = "2M"
+#sgx.enclave_size = "16G"
+#sgx.thread_num = 128
+#sgx.nonpie_binary = true
+
+sgx.file_check_policy = "allow_all_but_log"
+
+
+### SecCask specific settings ###
+
+# Profiling
+#sgx.profile.enable = "all"
+#sgx.profile.with_stack = 1
+
+
+sgx.trusted_files = [
+    "file:{{ entrypoint }}",
+    "file:{{ gramine.runtimedir() }}/",
+    "file:{{ arch_libdir }}/",
+    "file:{{ python.stdlib }}/",
+    "file:{{ python.get_paths().data }}/lib/python3.9/site-packages/",
+    "file:{{ pyzmq_home }}/",
+]
+
+sgx.allowed_files = [
+    "file:/tmp/",
+    "file:/etc/",
+    "file:/usr/",
+
+    # SecCask Specified
+    "file:{{ app_home }}/",
+    "file:{{ home }}/seccask-temp/",
+    "file:{{ home }}/seccask-temp/workspaces/",
+]
+
+
+# Gramine optionally provides patched OpenMP runtime library that runs faster
+# inside SGX enclaves (execute `make -C LibOS gcc` to generate it). Uncomment
+# the lines below to use the patched library. PyTorch's SGX perf overhead
+# decreases on some workloads from 25% to 8% with this patched library. Note
+# that we need to preload the library because PyTorch's distribution renames
+# libgomp.so to smth like libgomp-7c85b1e2.so.1, so it's not just a matter of
+# searching in the Gramine's Runtime path first, but a matter of intercepting
+# OpenMP functions.
+# loader.env.LD_PRELOAD = "/nfs/host/libgomp.so.1"

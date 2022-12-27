@@ -1,0 +1,25 @@
+name: LeNet5 for MNIST
+env:
+  test_source_base: /nfs/host/sgx/seccask/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_mnist
+libraries:
+  - lenet5_mnist_train_validate_v0
+  - lenet5_mnist_train_validate_v0
+  - lenet5_mnist_test_v0
+  - lenet5_mnist_test_v0
+pipeline:
+  - { type: dataset, name: dataset_mnist }
+  - { type: library, name: lenet5_mnist_train_validate }
+  - { type: library, name: lenet5_mnist_test }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0]]
+  # - action: create_pipeline
+  #   versions: [[0, 0], [0, 0], [0, 1]]
+  # - action: create_pipeline
+  #   versions: [[0, 0], [0, 1], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1]]

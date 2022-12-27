@@ -1,0 +1,18 @@
+[requires]
+fmt/8.1.1
+pybind11/2.10.0
+boost/1.72.0
+spdlog/1.10.0
+cli11/2.2.0
+backward-cpp/1.6
+inih/56
+openssl/1.1.1q
+protobuf/3.17.1
+magic_enum/0.8.0
+
+[generators]
+cmake
+
+[options]
+#boost:extra_b2_flags="cxxflags=\"-fsanitize=address context-impl=ucontext -DBOOST_USE_ASAN\" linkflags=\"-lasan\""
+boost:extra_b2_flags="valgrind=on"

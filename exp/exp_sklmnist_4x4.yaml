@@ -1,0 +1,58 @@
+name: Scikit-Learn for MNIST784
+env:
+  test_source_base: /nfs/host/sgx/seccask/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_mnist784
+libraries:
+  - preprocessing_mnist784_scaler_v0
+  - preprocessing_mnist784_scaler_v0
+  - preprocessing_mnist784_scaler_v1
+  - preprocessing_mnist784_scaler_v1.1
+  - skl_mnist_train_validate_v0
+  - skl_mnist_train_validate_v0
+  - skl_mnist_train_validate_v1
+  - skl_mnist_train_validate_v1.1
+  - skl_mnist_test_v0
+  - skl_mnist_test_v0
+  - skl_mnist_test_v1
+  - skl_mnist_test_v1.1
+pipeline:
+  - { type: dataset, name: dataset_mnist784 }
+  - { type: library, name: preprocessing_mnist784_scaler }
+  - { type: library, name: skl_mnist_train_validate }
+  - { type: library, name: skl_mnist_test }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0], [0, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 1], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 1], [0, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 0], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 0], [0, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1], [0, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 0], [1, 0], [1, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 0], [1, 0], [1, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 0], [1, 1], [1, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 0], [1, 1], [1, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 1], [1, 0], [1, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 1], [1, 0], [1, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 1], [1, 1], [1, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [1, 1], [1, 1], [1, 1]]

@@ -1,0 +1,59 @@
+name: Case Study - Autolearn
+env:
+  test_source_base: /home/mlcask/sgx/test-source-enc/
+  workspace_base: /home/mlcask/seccask-temp/
+branches:
+  - master
+  - dev
+datasets:
+  - dataset_autolearn
+libraries:
+  - autolearn_IG_v0.0
+  - autolearn_IG_v1.0
+  - autolearn_dependent_regression_v0.0
+  - autolearn_dependent_regression_v1.0
+  - autolearn_stable_v0.0
+  - autolearn_stable_v0.1
+  - autolearn_stable_v0.2
+  - autolearn_stable_v0.3
+  - autolearn_model_v0.0
+  - autolearn_model_v0.1
+  - autolearn_model_v0.2
+pipeline:
+  - { type: dataset, name: dataset_autolearn }
+  - { type: library, name: autolearn_IG }
+  - { type: library, name: autolearn_dependent_regression }
+  - { type: library, name: autolearn_stable }
+  - { type: library, name: autolearn_model }
+tasks:
+  - action: commit_libs
+
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [0, 0], [0, 1], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [1, 0], [0, 2], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0], [1, 0], [0, 3], [0, 0]]
+
+  - action: create_pipeline
+    branch: dev
+    versions: [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    branch: dev
+    versions: [[0, 0], [0, 0], [0, 0], [0, 0], [0, 1]]
+  - action: create_pipeline
+    branch: dev
+    versions: [[0, 0], [1, 0], [1, 0], [0, 2], [0, 1]]
+  - action: create_pipeline
+    branch: dev
+    versions: [[0, 0], [1, 0], [1, 0], [0, 2], [0, 2]]
+
+  # - action: merge_branch
+  #   base_branch: dev
+  #   merging_branch: master

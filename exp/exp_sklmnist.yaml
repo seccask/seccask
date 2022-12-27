@@ -1,0 +1,25 @@
+name: Scikit-Learn for MNIST784
+env:
+  test_source_base: /home/mlcask/sgx/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_mnist784
+libraries:
+  - skl_mnist_train_validate_v0
+  - skl_mnist_train_validate_v0
+  - skl_mnist_test_v0
+  - skl_mnist_test_v0
+pipeline:
+  - { type: dataset, name: dataset_mnist784 }
+  - { type: library, name: skl_mnist_train_validate }
+  - { type: library, name: skl_mnist_test }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 1]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1]]

@@ -1,0 +1,21 @@
+name: VGG16 for CIFAR-10
+env:
+  test_source_base: /nfs/host/sgx/seccask/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_cifar10
+libraries:
+  - th_vgg16_c10_train_validate_v0
+  - th_vgg16_c10_train_validate_v0
+  - th_vgg16_c10_test_v0
+  - th_vgg16_c10_test_v0
+pipeline:
+  - { type: dataset, name: dataset_cifar10 }
+  - { type: library, name: th_vgg16_c10_train_validate }
+  - { type: library, name: th_vgg16_c10_test }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0], [0, 0]]
+  - action: create_pipeline
+    versions: [[0, 0], [0, 1], [0, 1]]

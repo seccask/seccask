@@ -1,0 +1,14 @@
+name: Case Study - Sentiment Analysis with LDA-Reg
+env:
+  test_source_base: /home/mlcask/sgx/test-source/
+  workspace_base: /home/mlcask/seccask-temp/
+pipeline:
+  - { type: dataset, name: dataset_sentiment_analysis }
+  - { type: library, name: sentiment_analysis_preprocess }
+tasks:
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 0]]
+  - action: create_pipeline
+    branch: master
+    versions: [[0, 0], [0, 1]]
