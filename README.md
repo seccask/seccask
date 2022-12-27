@@ -14,25 +14,25 @@ To this end, we present SecCask, which leverages hardware-backed trusted executi
 
 ## Installation
 
-1. Install [Gramine](https://gramine.readthedocs.io/en/latest/) globally. For reproducibility, 
-2. Build and install [PyZMQ](https://github.com/zeromq/pyzmq) 23.1.0 with ZeroMQ disabling `getifaddrs()`, as the API is not supported by Gramine and causes crashes. This can be done by undefining ZMQ_HAVE_IFADDRS. See source code [here](https://github.com/zeromq/libzmq/blob/37224c93de2c7c08602c79a2a1b4d7e582f09281/src/ip_resolver.cpp#L513).
-3. Define the following variables:
+1. Install [Gramine LibOS](https://gramine.readthedocs.io/en/latest/) globally. For reproducibility, clone, build and install the LibOS from [this repo](https://github.com/seccask/gramine).
+2. Clone, build and install [EncFSPython 3.9.13](https://github.com/seccask/encfspython-3.9.13) to `$PYTHONHOME`.
+3. Copy project directory to `$APP_HOME`.
+4. Use the requirements file to create a Python 3.9 virtual environment including necessary packages for the system as well as those for experiments:
     ```bash
-    $ export APP_HOME=/PATH/TO/SECCASK
-    $ export PYZMQ_HOME=/PATH/TO/PYZMQ-23.1.0
-    ```
-4. Copy project directory to `$APP_HOME`.
-5. Create a Python 3.9 virtual environment with necessary packages:
-    ```bash
+    # In $APP_HOME
     $ python -m venv venv
     $ source venv/bin/activate
-    (venv) $ python -m pip install cffi colorama paramiko pyyaml
-    ```
-
-    Or use the requirements file to get a tested environment including necessary packages as well as commonly used data analytics and machine learning packages (Remember to change `/PATH/TO/PYZMQ-23.1.0`):
-
-    ```bash
     (venv) $ python -m pip install -r requirements.txt
+    ```
+5. Build and install PyTorch from source using the following command. For more information, see [this Dockerfile](https://ssgit.skku.edu/khadinh/sgx-tutorial/-/blob/master/sgx-lkl-samples/pytorch/Dockerfile).
+    ```bash
+    git clone https://github.com/pytorch/pytorch \
+        && cd pytorch \
+        && git checkout v1.4.1 \
+        && git submodule update --init --recursive \
+        && DEBUG=0 USE_CUDA=0 USE_MKLDNN=0 USE_OPENMP=0 ATEN_THREADING=NATIVE BUILD_BINARY=0 \
+        CFLAGS="-D__EMSCRIPTEN__" \
+        python setup.py install
     ```
 6. Build SecCask Gramine manifest in the virtual environment:
    
@@ -49,7 +49,7 @@ To this end, we present SecCask, which leverages hardware-backed trusted executi
     ```
     
     ---
-7. Comment line `SGX = "1"` in `gramine_manifest/python.manifest`:
+7. Comment line `SGX = "1"` in `gramine_manifest/seccask.manifest`:
    ```toml
    [loader.env]
    # SGX = "1"
@@ -60,7 +60,7 @@ To this end, we present SecCask, which leverages hardware-backed trusted executi
 Run experiment `$EXP_NAME` with command:
 
 ```bash
-(venv) $ PYTHONPATH=/PATH/TO/PYZMQ-23.1.0:$APP_HOME/src python $APP_HOME/start_exp.py $EXP_NAME
+(venv) $ PYTHONPATH=$APP_HOME/pysrc python $APP_HOME/start_exp.py $EXP_NAME
 ```
 
 ## Start in Trusted Mode
@@ -68,8 +68,14 @@ Run experiment `$EXP_NAME` with command:
 Run experiment `$EXP_NAME` with command:
 
 ```bash
-(venv) $ gramine-sgx $APP_HOME/gramine_manifest/python $APP_HOME/start_exp.py $EXP_NAME
+(venv) $ gramine-sgx $APP_HOME/gramine_manifest/seccask $APP_HOME/start_exp.py $EXP_NAME
 ```
+
+## Other Useful Commands
+
+See [CommonCommands.md](./CommonCommands.md).
+
+Please remember to replace the absolute paths with your folder structure.
 
 ## Configuration
 
@@ -81,6 +87,8 @@ SecCask supports running experiments specified by *experiment manifests*. Sample
 
 ### Available Experiments
 
+#### Standard ML Tasks (For Unit Testing Purposes)
+
 - mlp2
 - mnist
 - resnet18_c10
@@ -88,6 +96,11 @@ SecCask supports running experiments specified by *experiment manifests*. Sample
 - sklmnist_v1
 - vgg16_c10
 - vgg16_c10_v1
+
+#### Case Studies
+
+- cs_autolearn
+- cs_sa
 
 ## Architecture
 
