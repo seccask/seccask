@@ -4,7 +4,7 @@
 
 Modern data analytics pipelines are highly dynamic, as they are constantly monitored and fine-tuned by both data engineers and scientists. Recent systems for managing pipelines make it easy to create, deploy, and track their evolution. However, they do not consider the privacy of both the data and the computation, which becomes a challenge for adoption as many of these systems are offered as services on the public cloud with less or no trust. Our goal is to design a secure and efficient data analytics pipeline management system, in which multiple parties could collaborate by providing datasets and libraries to form pipelines. 
 
-To this end, we present SecCask, which leverages hardware-backed trusted execution environments (TEEs) to ensure privacy. Our system overcomes the problems of a naive design that isolates complete pipeline execution in one enclave by administering enclaves and runtimes. Moreover, the objective of supporting fast-changing pipelines with components requiring low latency brings the challenge of reducing the cold start overhead - the main performance bottleneck in modern hardware. Our approach consists of reusing trusted runtimes for different pipeline components and caching them to avoid the cost of initialization. 
+To this end, we present SecCask, which leverages hardware-based trusted execution environments (TEEs) to ensure privacy. Our system overcomes the problems of a naive design that isolates complete pipeline execution in one enclave by administering enclaves and runtimes. Moreover, the objective of supporting fast-changing pipelines with components requiring low latency brings the challenge of reducing the cold start overhead - the main performance bottleneck in modern hardware. Our approach consists of reusing trusted runtimes for different pipeline components and caching them to avoid the cost of initialization. 
 
 ## Features
 
@@ -60,7 +60,8 @@ To this end, we present SecCask, which leverages hardware-backed trusted executi
 Run experiment `$EXP_NAME` with command:
 
 ```bash
-(venv) $ PYTHONPATH=$APP_HOME/pysrc python $APP_HOME/start_exp.py $EXP_NAME
+# In $APP_HOME
+(venv) $ gramine-direct ./gramine_manifest/seccask --coordinator --mode=tls --manifest=sklmnist
 ```
 
 ## Start in Trusted Mode
@@ -68,7 +69,10 @@ Run experiment `$EXP_NAME` with command:
 Run experiment `$EXP_NAME` with command:
 
 ```bash
-(venv) $ gramine-sgx $APP_HOME/gramine_manifest/seccask $APP_HOME/start_exp.py $EXP_NAME
+# Without remote attestation
+(venv) $ gramine-sgx ./gramine_manifest/seccask --coordinator --mode=tls --manifest=sklmnist
+# With remote attestation
+(venv) $ gramine-sgx ./gramine_manifest/seccask --coordinator --mode=ratls --manifest=sklmnist
 ```
 
 ## Other Useful Commands
