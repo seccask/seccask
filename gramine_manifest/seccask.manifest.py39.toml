@@ -16,7 +16,7 @@ loader.env.LD_LIBRARY_PATH = "{{ app_home }}/src/thirdparty/ustore_release/lib:/
 loader.env.PATH = "{{ python.get_paths().data }}/bin:/usr/bin:/usr/local/bin/:/bin:{{ app_home }}:{{ arch_libdir }}:{{ execdir }}"
 loader.env.APP_HOME = "{{ app_home }}"
 loader.env.HOME = "{{ home }}"
-loader.env.PYTHONPATH = "{{ app_home }}/pysrc:{{ python.get_paths().data }}/lib/python3.9/site-packages:{{ pyzmq_home }}"
+loader.env.PYTHONPATH = "{{ app_home }}/pysrc:{{ python.get_paths().data }}/lib/python3.9/site-packages"
 loader.env.PYTHONHOME = "{{ home }}/sgx/lib/cpython-3.9.13-install"
 loader.env.OMP_NUM_THREADS = "8"
 loader.env.PYTHONDONTWRITEBYTECODE = "1"
@@ -91,7 +91,6 @@ sgx.trusted_files = [
     "file:{{ arch_libdir }}/",
     "file:{{ python.stdlib }}/",
     "file:{{ python.get_paths().data }}/lib/python3.9/site-packages/",
-    "file:{{ pyzmq_home }}/",
     "file:/home/mlcask/.ssh/",
 ]
 

@@ -10,8 +10,7 @@
 ARCH_LIBDIR ?= /lib/$(shell gcc -dumpmachine)
 
 APP_HOME ?= /home/mlcask/sgx/seccask2
-PYZMQ_HOME ?= /home/mlcask/sgx/lib/pyzmq-23.1.0
-SECCASK_BINARY_PATH ?= /home/mlcask/sgx/seccask2/build/bin/seccask
+SECCASK_BINARY_PATH ?= $(APP_HOME)/build/bin/seccask
 
 # Relative path to Gramine root and key for enclave signing
 SGX_SIGNER_KEY ?= $(HOME)/.config/gramine/enclave-key.pem
@@ -38,7 +37,6 @@ python.manifest: python.manifest.seccask.py39.toml
 		-Dentrypoint=$(shell sh -c "command -v python") \
 		-Dhome=$(HOME) \
 		-Dapp_home=$(APP_HOME) \
-		-Dpyzmq_home=$(PYZMQ_HOME) \
 		$< >$@
 
 python.manifest.sgx: python.manifest
@@ -63,7 +61,6 @@ seccask.manifest: seccask.manifest.py39.toml
 		-Dentrypoint=$(SECCASK_BINARY_PATH) \
 		-Dhome=$(HOME) \
 		-Dapp_home=$(APP_HOME) \
-		-Dpyzmq_home=$(PYZMQ_HOME) \
 		$< >$@
 
 seccask.manifest.sgx: seccask.manifest
