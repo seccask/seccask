@@ -92,9 +92,8 @@ void MessageHandler::ServerMode(std::shared_ptr<seccask::Coordinator> coord) {
   coord_ = coord;
 
   if (mode_ == Mode::kTLS) {
-    ssl_context_.use_certificate_chain_file(
-        "/home/mlcask/sgx/seccask2/build/cert.pem");
-    ssl_context_.use_private_key_file("/home/mlcask/sgx/seccask2/build/key.pem",
+    ssl_context_.use_certificate_chain_file("cert.pem");
+    ssl_context_.use_private_key_file("key.pem",
                                       boost::asio::ssl::context::pem);
 
   } else if (mode_ == Mode::kRATLS) {

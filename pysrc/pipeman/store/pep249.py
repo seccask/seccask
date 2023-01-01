@@ -4,10 +4,12 @@ import threading
 import time
 from typing import List, Union
 
+
 # replace this with other DB client if necessary
 import mysql.connector as connector
 from mysql.connector.errors import Error
 
+from pipeman.config import default_config as conf
 from pipeman.store.base_storage import (
     BaseStorage,
     StorageReturn,
@@ -93,7 +95,7 @@ class PEP249Storage(BaseStorage):
     CHUNKSIZE = 8192
     DATABASE_NAME = "seccask"
     TABLE_NAME = "blobstore"
-    TEMP_PATH = "/home/mlcask/sgx/gemini-pipeline/gemini-pipeline/temp"
+    TEMP_PATH = f"{conf.get_app_home()}/sgx/gemini-pipeline/gemini-pipeline/temp"
 
     def __init__(
         self,

@@ -9,7 +9,7 @@
 
 ARCH_LIBDIR ?= /lib/$(shell gcc -dumpmachine)
 
-APP_HOME ?= /home/mlcask/sgx/seccask2
+APP_HOME ?= $(HOME)/sgx/seccask2
 SECCASK_BINARY_PATH ?= $(APP_HOME)/build/bin/seccask
 
 # Relative path to Gramine root and key for enclave signing
@@ -20,7 +20,7 @@ EXEC_DIR = /bin
 ifeq ($(DEBUG),1)
 GRAMINE_LOG_LEVEL = trace
 else
-GRAMINE_LOG_LEVEL = error 
+GRAMINE_LOG_LEVEL = error
 endif
 
 .PHONY: all

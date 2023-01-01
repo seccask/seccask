@@ -43,10 +43,9 @@ fs.mounts = [
 
     ### SecCask Specified
     # Mount $APP_HOME
-    { type = "chroot", uri = "file:/home/mlcask/sgx", path = "/home/mlcask/sgx" },
-    { type = "chroot", uri = "file:/home/mlcask/.ssh", path = "/home/mlcask/.ssh" },
+    { type = "chroot", uri = "file:{{ home }}/sgx", path = "{{ home }}/sgx" },
+    { type = "chroot", uri = "file:{{ home }}/.ssh", path = "{{ home }}/.ssh" },
     # { type = "chroot", uri = "file:{{ app_home }}", path = "{{ app_home }}" },
-    # { type = "chroot", uri = "file:/home/mlcask/sgx/seccask2", path = "/home/mlcask/sgx/seccask2" },
     # Mount temp-path
     { type = "chroot", uri = "file:{{ home }}/seccask-temp", path = "{{ home }}/seccask-temp" },
     # Mount host FS
@@ -91,7 +90,7 @@ sgx.trusted_files = [
     "file:{{ arch_libdir }}/",
     "file:{{ python.stdlib }}/",
     "file:{{ python.get_paths().data }}/lib/python3.9/site-packages/",
-    "file:/home/mlcask/.ssh/",
+    "file:{{ home }}/.ssh/",
 ]
 
 sgx.allowed_files = [
@@ -100,9 +99,8 @@ sgx.allowed_files = [
     "file:/usr/",
 
     # SecCask Specified
+    "file:{{ home }}/",
     # "file:{{ app_home }}/",
-    "file:/home/mlcask/",
-    # "file:/home/mlcask/sgx/seccask2/",
     # "file:{{ home }}/seccask-temp/",
     # "file:{{ home }}/seccask-temp/workspaces/",
 ]

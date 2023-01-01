@@ -30,10 +30,10 @@ class Scheduler:
     ) -> None:
         self.logger = LogUtils.get_default_named_logger(type(self).__name__)
 
-        self._active_workers: cache.LRUCache = cache.LRUCache()
-        self._cached_workers: cache.LRUCache = cache.LRUCache()
-        # self._active_workers = cache.PACache()
-        # self._cached_workers = cache.PACache()
+        # self._active_workers: cache.LRUCache = cache.LRUCache()
+        # self._cached_workers: cache.LRUCache = cache.LRUCache()
+        self._active_workers = cache.PACache()
+        self._cached_workers = cache.PACache()
         self._new_workers = []
         self._num_slot = num_slot
         # self._waiting_components: MutableSet[Tuple[p.Component, asyncio.Future]] = set()
@@ -105,7 +105,6 @@ class Scheduler:
 
         section_name = "worker_sgx" if conf.is_sgx_enabled else "worker"
 
-        """Use SecCask 2 binary"""
         # cmds_template = (
         #     r"ltrace -fS -o {} {} {} --worker --mode={} --id={} -P{} > {} 2>&1"
         # )
@@ -119,18 +118,18 @@ class Scheduler:
         #     temp_file_name,
         # ).split()
 
-        # """Valgrind Debug"""
+        """Valgrind Debug"""
         # cmds = (
         #     (
         #         r"PYTHONHOME=~/sgx/lib/cpython-3.9.13-install "
-        #         + r"PYTHONPATH=~/sgx/seccask2/pysrc:~/scvenv-autolearn/lib/python3.9/site-packages "
-        #         + r"APP_HOME=/home/mlcask/sgx/seccask2 "
+        #         + f"PYTHONPATH={conf.get_app_home()}/pysrc:~/scvenv-autolearn/lib/python3.9/site-packages "
+        #         + f"APP_HOME={conf.get_app_home()} "
         #         + r"PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=full "
-        #         + r"--suppressions=/home/mlcask/sgx/lib/cpython-3.9.13/Misc/valgrind-python.supp "
+        #         + r"--suppressions=~/sgx/lib/cpython-3.9.13/Misc/valgrind-python.supp "
         #         + r"{} --worker --mode={} --id={} -P{} > {} 2>&1"
         #     )
         #     .format(
-        #         "/home/mlcask/sgx/seccask2/build/bin/seccask",
+        #         f"{conf.get_app_home()}/build/bin/seccask",
         #         "ratls"
         #         if conf.is_sgx_enabled and conf.getboolean("ratls", "enable")
         #         else "tls",
@@ -141,7 +140,7 @@ class Scheduler:
         #     .split()
         # )
 
-        # cmds = r"SECCASK_DEBUG_ENCFS=1 PYTHONHOME=~/sgx/lib/cpython-3.9.5-install {} {} --worker --mode={} --id={} -P{} > {} 2>&1".format(
+        """Use SecCask 2 binary"""
         cmds = r"{}{}PYTHONHOME=~/sgx/lib/cpython-3.9.13-install {} {} --worker --mode={} --id={} -P{} > {} 2>&1".format(
             "SECCASK_DEBUG_ENCFS=1 " if conf.getboolean("log", "log_encfs") else "",
             "SECCASK_PROFILE_IO=1 " if conf.getboolean("log", "log_io") else "",
