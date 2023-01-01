@@ -57,14 +57,14 @@ rm -rf ../enc-test-source/* ; env PYTHONHOME=~/sgx/lib/cpython-3.9.13-install   
 ### Run with Gramine-SGX with EncFS enabled on SKLMNIST
 
 ```bash
-PYTHONHOME=~/sgx/lib/cpython-3.9.13-install PYTHONPATH=/home/mlcask/sgx/seccask2/pysrc:/home/mlcask/scvenv-autolearn/lib/python3.9/site-packages APP_HOME=/home/mlcask/sgx/seccask2 /home/mlcask/sgx/seccask2/build/bin/seccask --coordinator --mode=tls --manifest=sklmnist -k SECCASK_TEST_KEY
+PYTHONHOME=~/sgx/lib/cpython-3.9.13-install PYTHONPATH=~/sgx/seccask2/pysrc:~/scvenv-autolearn/lib/python3.9/site-packages APP_HOME=~/sgx/seccask2 ~/sgx/seccask2/build/bin/seccask --coordinator --mode=tls --manifest=sklmnist -k SECCASK_TEST_KEY
 ```
 
 ### Run MonkeyTest
 
 ```bash
 # In encfspython/ folder
-PYTHONHOME=/home/mlcask/sgx/lib/cpython-3.9.13-install PYTHONPATH=/home/mlcask/scvenv-autolearn/lib/python3.9/site-packages gramine-sgx ./gramine_manifest/encfspython --input /home/mlcask/sgx/encfspython/monkeytest.py --key ENCFSPYTHON --args -r,256,-w,256,-s,512,-f,/mnt/ramdisk/encfs/monkeytest
+PYTHONHOME=~/sgx/lib/cpython-3.9.13-install PYTHONPATH=~/scvenv-autolearn/lib/python3.9/site-packages gramine-sgx ./gramine_manifest/encfspython --input ~/sgx/encfspython/monkeytest.py --key ENCFSPYTHON --args -r,256,-w,256,-s,512,-f,/mnt/ramdisk/encfs/monkeytest
 ```
 
 ### MLPerf: Generate Sealed Dataset

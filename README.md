@@ -17,14 +17,22 @@ To this end, we present SecCask, which leverages hardware-based trusted executio
 1. Install [Gramine LibOS](https://gramine.readthedocs.io/en/latest/) globally. For reproducibility, clone, build and install the LibOS from [this repo](https://github.com/seccask/gramine).
 2. Clone, build and install [EncFSPython 3.9.13](https://github.com/seccask/encfspython-3.9.13) to `$PYTHONHOME`.
 3. Copy project directory to `$APP_HOME`.
-4. Use the requirements file to create a Python 3.9 virtual environment including necessary packages for the system as well as those for experiments:
+4. Build SecCask binary:
+    ```bash
+    # In $APP_HOME
+    $ mkdir build && cd build
+    $ conan install .. -pr=default -s build_type=Debug --build=missing
+    $ cmake -DCMAKE_BUILD_TYPE=Debug -GNinja ..
+    $ ninja
+    ```
+5. Use the requirements file to create a Python 3.9 virtual environment including necessary packages for the system as well as those for experiments:
     ```bash
     # In $APP_HOME
     $ python -m venv venv
     $ source venv/bin/activate
     (venv) $ python -m pip install -r requirements.txt
     ```
-5. Build and install PyTorch from source using the following command. For more information, see [this Dockerfile](https://ssgit.skku.edu/khadinh/sgx-tutorial/-/blob/master/sgx-lkl-samples/pytorch/Dockerfile).
+6. Build and install PyTorch from source using the following command. For more information, see [this Dockerfile](https://ssgit.skku.edu/khadinh/sgx-tutorial/-/blob/master/sgx-lkl-samples/pytorch/Dockerfile).
     ```bash
     git clone https://github.com/pytorch/pytorch \
         && cd pytorch \
@@ -34,7 +42,8 @@ To this end, we present SecCask, which leverages hardware-based trusted executio
         CFLAGS="-D__EMSCRIPTEN__" \
         python setup.py install
     ```
-6. Build SecCask Gramine manifest in the virtual environment:
+7. Modify `$APP_HOME` and `$ENCFSPYTHON_HOME` in `gramine_manifest/Makefile`.
+7. Build SecCask Gramine manifest in the virtual environment:
    
     ```bash
     (venv) $ cd $APP_HOME/gramine_manifest
@@ -49,7 +58,7 @@ To this end, we present SecCask, which leverages hardware-based trusted executio
     ```
     
     ---
-7. Comment line `SGX = "1"` in `gramine_manifest/seccask.manifest`:
+8. Comment line `SGX = "1"` in `gramine_manifest/seccask.manifest`:
    ```toml
    [loader.env]
    # SGX = "1"

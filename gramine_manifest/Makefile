@@ -10,6 +10,7 @@
 ARCH_LIBDIR ?= /lib/$(shell gcc -dumpmachine)
 
 APP_HOME ?= $(HOME)/sgx/seccask2
+ENCFSPYTHON_HOME ?= $(HOME)/sgx/lib/cpython-3.9.13-install
 SECCASK_BINARY_PATH ?= $(APP_HOME)/build/bin/seccask
 
 # Relative path to Gramine root and key for enclave signing
@@ -37,6 +38,7 @@ python.manifest: python.manifest.seccask.py39.toml
 		-Dentrypoint=$(shell sh -c "command -v python") \
 		-Dhome=$(HOME) \
 		-Dapp_home=$(APP_HOME) \
+		-Dencfspython_home=$(ENCFSPYTHON_HOME) \
 		$< >$@
 
 python.manifest.sgx: python.manifest
@@ -61,6 +63,7 @@ seccask.manifest: seccask.manifest.py39.toml
 		-Dentrypoint=$(SECCASK_BINARY_PATH) \
 		-Dhome=$(HOME) \
 		-Dapp_home=$(APP_HOME) \
+		-Dencfspython_home=$(ENCFSPYTHON_HOME) \
 		$< >$@
 
 seccask.manifest.sgx: seccask.manifest
