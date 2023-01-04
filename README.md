@@ -32,7 +32,7 @@ To this end, we present SecCask, which leverages hardware-based trusted executio
     $ source venv/bin/activate
     (venv) $ python -m pip install -r requirements.txt
     ```
-6. Build and install PyTorch from source using the following command. For more information, see [this Dockerfile](https://ssgit.skku.edu/khadinh/sgx-tutorial/-/blob/master/sgx-lkl-samples/pytorch/Dockerfile).
+6. Build and install PyTorch from source using the following command. For more information, see [this Dockerfile](https://github.com/lsds/sgx-lkl/blob/oe_port/samples/ml/pytorch/Dockerfile).
     ```bash
     git clone https://github.com/pytorch/pytorch \
         && cd pytorch \
