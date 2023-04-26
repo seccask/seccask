@@ -5,6 +5,8 @@ import time
 import sys
 from typing import List
 
+from profiler import mem_profiler
+
 
 def execute_component(
     component_id: str, working_directory: str, cmds: List[str]
@@ -51,4 +53,7 @@ def execute_component(
     gc.collect()
 
     print(f"[WM] Component {component_id} done")
+
+    mem_profiler.profile()
+
     return component_id

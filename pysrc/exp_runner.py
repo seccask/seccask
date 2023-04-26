@@ -11,6 +11,7 @@ from pipeman.meta import MetaKey, WorkspaceMeta
 from pipeman.utils import LogUtils
 from pipeman.version import SemanticVersion
 from manifest import ComponentType
+from profiler import mem_profiler
 
 
 def generate_workspace_meta(
@@ -182,7 +183,7 @@ def start(manifest_path: str):
     if io_time > 0:
         print(f"IO SPENT: {io_time}")
 
-    os._exit(0)
+    mem_profiler.profile()
 
 
 if __name__ == "__main__":

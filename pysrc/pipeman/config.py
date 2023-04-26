@@ -129,7 +129,7 @@ DEFUALTS_CONFIG_INI = {
         "enable_compatibility_check_on_new_worker": "false",
         "__debug_disable_level3_check": "false",
         "__debug_worker_creation_dry_run": "false",
-        "__debug_singleton_worker": "false"
+        "__debug_singleton_worker": "false",
     },
     "worker": {
         "gramine_path": "/usr/local/bin/gramine-direct",
@@ -140,13 +140,18 @@ DEFUALTS_CONFIG_INI = {
         "gramine_manifest_path": "$HOME/gramine-manifest/python",
     },
     "log": {
+        "log_config": "true",
         "log_cffi": "false",
         "log_filesystem_storage": "false",
         "log_encfs": "false",
         "log_io": "false",
+        "log_time": "false",
     },
     "ratls": {"enable": "false", "mrenclave": "", "mrsigner": ""},
+    "profiler": {"enable_memory_profiler": "false", "memory_profiler_mode": "status"},
 }
 
 default_config = Configuration("config.ini", DEFUALTS_CONFIG_INI)
-print("Config Loaded: ", default_config)
+
+if default_config.getboolean("log", "log_config"):
+    print("Config Loaded: ", default_config)
