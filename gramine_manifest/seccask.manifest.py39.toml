@@ -13,12 +13,15 @@ sys.enable_sigterm_injection = true
 # Environment variables for Python
 loader.env.SGX = "1"                                                                                                                                                     # Enable In-SGX mode for SecCask Workers
 loader.env.LD_LIBRARY_PATH = "{{ app_home }}/src/thirdparty/ustore_release/lib:/lib:/{{ python.get_paths().data }}/lib:{{ arch_libdir }}:/usr/lib:/usr{{ arch_libdir }}"
-loader.env.PATH = "{{ python.get_paths().data }}/bin:/usr/bin:/usr/local/bin/:/bin:{{ app_home }}:{{ arch_libdir }}:{{ execdir }}"
+loader.env.PATH = "{{ python.get_paths().data }}/bin:/usr/bin:/usr/local/bin/:/bin:{{ app_home }}:{{ arch_libdir }}:{{ execdir }}:{{ app_home }}/build"
 loader.env.APP_HOME = "{{ app_home }}"
 loader.env.HOME = "{{ home }}"
 loader.env.PYTHONPATH = "{{ app_home }}/pysrc:{{ python.get_paths().data }}/lib/python3.9/site-packages"
 loader.env.PYTHONHOME = "{{ encfspython_home }}"
 loader.env.OMP_NUM_THREADS = "8"
+loader.env.MKL_NUM_THREADS = "8"
+loader.env.OPENBLAS_NUM_THREADS = "8"
+loader.env.BLIS_NUM_THREADS = "8"
 loader.env.PYTHONDONTWRITEBYTECODE = "1"
 loader.env.HDF5_USE_FILE_LOCKING = "FALSE"
 
@@ -60,12 +63,13 @@ fs.mounts = [
 loader.pal_internal_mem_size = "128M"
 sys.stack.size = "2M"
 sgx.enclave_size = "8G"
+# sys.brk.max_size = "2M"
+libos.check_invalid_pointers = false
+sgx.nonpie_binary = false
+# (For v1.3 and below)
 sgx.thread_num = 128
-sgx.nonpie_binary = true
-sgx.static_address = true
-
-# sgx.remote_attestation = "dcap"
-# sgx.debug = true
+# (For v1.4)
+# sgx.max_threads = 128
 
 # For TF2 DenseNet
 #loader.pal_internal_mem_size = "128M"
@@ -77,11 +81,15 @@ sgx.static_address = true
 sgx.file_check_policy = "allow_all_but_log"
 
 
-### SecCask specific settings ###
+### Debug, Profiling & RA ###
+
+sgx.remote_attestation = "dcap"
 
 # Profiling
-#sgx.profile.enable = "all"
-#sgx.profile.with_stack = 1
+# sgx.debug = true
+# sgx.profile.enable = "all"
+# sgx.profile.mode = "ocall_inner"
+# sgx.profile.with_stack = true
 
 
 sgx.trusted_files = [
