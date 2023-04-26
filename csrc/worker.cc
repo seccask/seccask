@@ -43,7 +43,8 @@ void Worker::DoActionFromMsg(Message msg) {
 
     } else if (msg.cmd() == "exit") {
       handler_->Send(std::move(Message::MakeWithoutArgs(id_, "bye")));
-      handler_ = nullptr;
+      // handler_->Close();
+      // handler_ = nullptr;
 
     } else if (msg.cmd() == "request_manifest") {
       boost::asio::post(component_strand_, [this]() {

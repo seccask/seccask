@@ -16,6 +16,7 @@ using tcp = boost::asio::ip::tcp;
 using namespace pybind11::literals;
 
 std::mutex g_lifecycle_mutex;
+std::mutex g_workers_mutex;
 
 double last_component_io_time;
 
@@ -171,9 +172,31 @@ void Coordinator::DoActionFromMsg(std::shared_ptr<MessageHandler> worker,
     g_lifecycle_mutex.unlock();  // This will unblock the trial manager
 
   } else if (cmd == "bye") {
-    util::log::Info(kClassName,
-                    "Worker {} disconnected. Removing from cached list", id);
+    util::log::Debug(kClassName,
+                     "Worker {} disconnected. Removing from cached list", id);
+    workers_[id]->Close();
     workers_[id] = nullptr;
+
+    g_workers_mutex.lock();
+
+    auto iter = workers_.find(id);
+    if (iter != workers_.end()) {
+      workers_.erase(iter);
+    } else {
+      util::log::Error(kClassName, "Unknown worker ID: {}", id);
+      return;
+    }
+
+    util::log::Debug(kClassName, "Remaining workers: {}", workers_.size());
+    if (workers_.size() == 0) {
+      g_workers_mutex.unlock();
+      util::log::Debug(kClassName, "All workers disconnected. Exit", id);
+
+      _exit(0);
+      // io_.stop();
+    } else {
+      g_workers_mutex.unlock();
+    }
 
   } else {
     util::log::Error(kClassName, "Unknown command: {}", msg.cmd());
@@ -194,6 +217,14 @@ void Coordinator::OnNewLifecycle(std::string manifest_name) {
         py::module_::import("daemon.coordinator").attr("on_new_lifecycle");
 
     PyOnNewLifecycle(manifest_name);
+
+    util::log::Debug(kClassName, "Lifecycle done. Exiting...");
+
+    for (auto it = workers_.begin(); it != workers_.end(); ++it) {
+      auto& w = it->second;
+      util::log::Debug(kClassName, "Sending exit to : {}", it->first);
+      w->Send(std::move(Message::MakeWithoutArgs("Coordinator", "exit")));
+    }
   }).detach();
 }
 void Coordinator::OnNewPipeline(std::vector<std::string> pipeline,

@@ -168,6 +168,11 @@ void MessageHandler::DoRead() {
  * `async_write`) will block them until the operation is done.
  */
 void MessageHandler::DoRead(const boost::asio::yield_context& yield) {
+  if (is_closing_) {
+    util::log::Warn(kClassName, "Closing...");
+    return;
+  }
+
   boost::system::error_code ec;
   // The next line will block until async I/O is done. Same below
   mode_ == Mode::kPlaintext
@@ -219,6 +224,17 @@ void MessageHandler::DoRead(const boost::asio::yield_context& yield) {
   DoRead(yield);
 }
 
+void MessageHandler::Close() {
+  is_closing_ = true;
+
+  boost::system::error_code ec;
+  ssl_socket_->shutdown(ec);
+  if (ec) {
+    util::log::Error(kClassName, fmt::format("At line {}: {}", __LINE__,
+                                             std::strerror(ec.value())));
+  }
+}
+
 void MessageHandler::Send(Message&& msg) {
   write_msgs_.emplace_back(std::move(msg));
   DoWrite();
@@ -268,8 +284,8 @@ void MessageHandler::DoWrite(const boost::asio::yield_context& yield) {
   util::log::Info(kClassName, "Message sent: [{}] {}", write_len_, msg);
 
   if (write_msgs_.front().cmd() == "bye") {
-    socket_.close();
-    return;
+    this->Close();
+    _exit(0);
   }
 
   write_msgs_.pop_front();

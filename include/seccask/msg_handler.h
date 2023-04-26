@@ -26,7 +26,8 @@ class MessageHandler : public std::enable_shared_from_this<MessageHandler> {
       : socket_(std::move(socket)),
         network_strand_(io),
         mode_(Mode::kPlaintext),
-        ssl_context_(boost::asio::ssl::context::tlsv12_client) {
+        ssl_context_(boost::asio::ssl::context::tlsv12_client),
+        is_closing_(false) {
     read_buf_ = std::make_shared<boost::asio::streambuf>();
     util::log::Debug(kClassName,
                      "Message handler initialized with plain text mode");
@@ -38,7 +39,8 @@ class MessageHandler : public std::enable_shared_from_this<MessageHandler> {
         mode_(is_ra_enabled ? Mode::kRATLS : Mode::kTLS),
         read_buf_(std::make_shared<boost::asio::streambuf>()),
         ssl_context_(is_server ? boost::asio::ssl::context::tlsv12_server
-                               : boost::asio::ssl::context::tlsv12_client) {
+                               : boost::asio::ssl::context::tlsv12_client),
+        is_closing_(false) {
     DebugShowMode();
   }
   MessageHandler(boost::asio::io_context& io,
@@ -49,7 +51,8 @@ class MessageHandler : public std::enable_shared_from_this<MessageHandler> {
         mode_(is_ra_enabled ? Mode::kRATLS : Mode::kTLS),
         read_buf_(std::make_shared<boost::asio::streambuf>()),
         ssl_context_(is_server ? boost::asio::ssl::context::tlsv12_server
-                               : boost::asio::ssl::context::tlsv12_client) {
+                               : boost::asio::ssl::context::tlsv12_client),
+        is_closing_(false) {
     DebugShowMode();
   }
   virtual ~MessageHandler();
@@ -137,6 +140,7 @@ class MessageHandler : public std::enable_shared_from_this<MessageHandler> {
   std::deque<Message> write_msgs_;
   std::function<void(std::shared_ptr<MessageHandler>, Message)> callback_;
   std::function<void(std::shared_ptr<MessageHandler>)> connected_callback_;
+  bool is_closing_;
 };
 }  // namespace seccask
 
