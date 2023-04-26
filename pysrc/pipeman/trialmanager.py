@@ -18,7 +18,8 @@ from pipeman.TrialTree import TreeNode, TrialTree
 from pipeman.utils import LogUtils, PrintUtils, first
 from pipeman.version import SemanticVersion
 
-import cpp_coordinator
+# Below module is created from pybind11 and thus have no source
+import cpp_coordinator  # type: ignore
 
 
 class TrialManager:
@@ -134,7 +135,8 @@ class TrialManager:
         # )
 
         cpp_coordinator.on_new_pipeline(
-            [x.to_string(with_version=True) for x in workspace.pipeline], candidate_ids,
+            [x.to_string(with_version=True) for x in workspace.pipeline],
+            candidate_ids,
         )
 
         self._train_node_list(nodes, options, candidate_ids)
@@ -413,7 +415,10 @@ class TrialManager:
         return cmd_list, wd_list, exec_nodes, exec_nodes_indices
 
     def _train_node_list(
-        self, node_list: List[TreeNode], options: dict, candidate_ids: List[str],
+        self,
+        node_list: List[TreeNode],
+        options: dict,
+        candidate_ids: List[str],
     ):
         self.logger.info("Training: ")
         self.logger.info(PrintUtils.format(node_list))
@@ -454,14 +459,16 @@ class TrialManager:
                 Call C++ code. This will block the current pipeline evolution 
                 process until receiving result from worker
             """
-            
+
             print(f"[Coordinator] TIME OF NEW COMPONENT IDENTIFIED: {time.time()}")
-            
+
             io_time: float = -1
-            
+
             component_key = cpp_coordinator.get_component_key()
             if component_key == "":
-                io_time = cpp_coordinator.on_new_component([candidate_ids[i], wd, "NULL", *cmds])
+                io_time = cpp_coordinator.on_new_component(
+                    [candidate_ids[i], wd, "NULL", *cmds]
+                )
             else:
                 io_time = cpp_coordinator.on_new_component(
                     [candidate_ids[i], wd, component_key, *cmds]

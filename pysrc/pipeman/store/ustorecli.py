@@ -166,7 +166,8 @@ class UStoreCLI(BaseStorage):
         self.custore_get, self.custore_put = get_api()
 
     def init_cpp_module(self):
-        import cpp_glassdb
+        # Below module is created from pybind11 and thus have no source
+        import cpp_glassdb # type: ignore
 
         self.custore_get, self.custore_put = cpp_glassdb.get, cpp_glassdb.put
 

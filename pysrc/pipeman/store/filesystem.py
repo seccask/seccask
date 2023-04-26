@@ -11,14 +11,15 @@ from pipeman.store.base_storage import (
     TransferDType,
 )
 
-import cpp_coordinator
+# Below module is created from pybind11 and thus have no source
+import cpp_coordinator  # type: ignore
 
 
 class FileSystemStorage(BaseStorage):
     """FileSystem storage subsystem.
 
-    This is a storage subsystem purely using file system as its physical 
-    storage. It manipulates files to store components and some metadata, plus 
+    This is a storage subsystem purely using file system as its physical
+    storage. It manipulates files to store components and some metadata, plus
     uses directory hierarchy to include metainfo (component name, branch, etc.)
     """
 
@@ -100,7 +101,10 @@ class FileSystemStorage(BaseStorage):
             return None, content
 
     def _get_file_path(
-        self, key: str, branch: Optional[str] = None, hversion: Optional[str] = None,
+        self,
+        key: str,
+        branch: Optional[str] = None,
+        hversion: Optional[str] = None,
     ) -> Optional[str]:
         result = None
         if hversion is not None:
@@ -186,7 +190,7 @@ class FileSystemStorage(BaseStorage):
         new_dir = os.path.join(os.path.dirname(remote_file_path), hversion)
         self._check_or_create_dir(new_dir)
         os.rename(remote_file_path, os.path.join(new_dir, self.GENERIC_FILE_NAME))
-        
+
         # Move HASH file to destination (Enabled when EncFS is used)
         component_key = cpp_coordinator.get_component_key()
         if component_key != "":
