@@ -1,6 +1,6 @@
 name: Case Study - Sentiment Analysis with LDA-Reg
 env:
-  test_source_base: /home/mlcask/sgx/test-source-enc/
+  test_source_base: /home/mlcask/sgx/test-source/
   # test_source_base: /home/mlcask/sgx/test-source-enc/
   workspace_base: /home/mlcask/seccask-temp/
 branches:

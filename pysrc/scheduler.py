@@ -17,7 +17,8 @@ import pipeline as p
 import worker_cache as cache
 import workerconn as wc
 
-import cpp_coordinator
+# Below module is created from pybind11 and thus have no source
+import cpp_coordinator  # type: ignore
 
 
 class WorkerPoolFull(Exception):
@@ -40,6 +41,8 @@ class Scheduler:
         self._waiting_components: MutableSet[p.Component] = set()
 
         self._is_pool_updated = asyncio.Queue(1)
+
+        self._config = UStoreConf()
 
         self._connect_ssh()
 
@@ -66,9 +69,7 @@ class Scheduler:
                 return w
 
     def _connect_ssh(self):
-        config = UStoreConf()
-
-        ssh_key = paramiko.RSAKey.from_private_key_file(config.USTORE_KEY_PATH)
+        ssh_key = paramiko.RSAKey.from_private_key_file(self._config.USTORE_KEY_PATH)
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -81,7 +82,9 @@ class Scheduler:
 
         ## Use publickey
         ssh_client.connect(
-            hostname=config.USTORE_ADDR, username=config.USTORE_USERNAME, pkey=ssh_key
+            hostname=self._config.USTORE_ADDR,
+            username=self._config.USTORE_USERNAME,
+            pkey=ssh_key,
         )
         self.sshclient = ssh_client
 
@@ -100,6 +103,7 @@ class Scheduler:
     def _execute_new_worker_command(self):
         id = str(uuid.uuid4())
         temp_file_name = os.path.join(env.temp_path, f"{id}.log")
+        # time_log_file_name = os.path.join(env.temp_path, f"{id}.time")
         # strace_file_name = os.path.join(env.temp_path, f"strace-{id}.txt")
         self.logger.debug(f"Creating new worker. CLI output to {temp_file_name}")
 
@@ -141,9 +145,12 @@ class Scheduler:
         # )
 
         """Use SecCask 2 binary"""
-        cmds = r"{}{}PYTHONHOME=~/sgx/lib/cpython-3.9.13-install {} {} --worker --mode={} --id={} -P{} > {} 2>&1".format(
+        # COMMAND_ESCAPED = r"{{ env PYTHONDONTWRITEBYTECODE=1 {}{}{}cset shield --exec {} -- {} --worker --mode={} --id={} -P{} ; }} > {} 2>&1"
+        COMMAND_ESCAPED = r"{{ env PYTHONDONTWRITEBYTECODE=1 {}{}{}env {} {} --worker --mode={} --id={} -P{} ; }} > {} 2>&1"
+        cmds = COMMAND_ESCAPED.format(
             "SECCASK_DEBUG_ENCFS=1 " if conf.getboolean("log", "log_encfs") else "",
             "SECCASK_PROFILE_IO=1 " if conf.getboolean("log", "log_io") else "",
+            "/usr/bin/time -v " if conf.getboolean("log", "log_time") else "",
             conf.get(section_name, "gramine_path"),
             conf.get(section_name, "gramine_manifest_path"),
             "ratls"
@@ -154,6 +161,40 @@ class Scheduler:
             temp_file_name,
         ).split()
 
+        # cmds = r"mkdir -p {}; cd {}; {{ {}cset shield --exec env -- PYTHONDONTWRITEBYTECODE=1 {}{}{} -- {} {} --worker --mode={} --id={} -P{} ; }} > {} 2>&1".format(
+        # cmds = r"mkdir -p {}; cd {}; {{ {}cset shield --exec env -- PYTHONDONTWRITEBYTECODE=1 {}{}{} {} --worker --mode={} --id={} -P{} ; }} > {} 2>&1".format(
+        #     os.path.join(env.temp_path, f"_{id}"),
+        #     os.path.join(env.temp_path, f"_{id}"),
+        #     "/usr/bin/time -v " if conf.getboolean("log", "log_time") else "",
+        #     "SECCASK_DEBUG_ENCFS=1 " if conf.getboolean("log", "log_encfs") else "",
+        #     "SECCASK_PROFILE_IO=1 " if conf.getboolean("log", "log_io") else "",
+        #     # f"perf mem record",
+        #     # f"/opt/intel/oneapi/vtune/2023.0.0/bin64/vtune -collect memory-consumption -result-dir /home/mlcask/sgx/seccask2/test/w-{time.time()}",
+        #     conf.get(section_name, "gramine_path"),
+        #     conf.get(section_name, "gramine_manifest_path"),
+        #     "ratls"
+        #     if conf.is_sgx_enabled and conf.getboolean("ratls", "enable")
+        #     else "tls",
+        #     id,
+        #     conf.get("coordinator", "worker_manager_port"),
+        #     temp_file_name,
+        # ).split()
+
+        # cmds = r"source /opt/intel/oneapi/setvars.sh; {{ cset shield --exec {}env -- PYTHONDONTWRITEBYTECODE=1 {}{}{} {} --worker --mode={} --id={} -P{} ; }} > {} 2>&1 & {}".format(
+        #     "/usr/bin/time -v " if conf.getboolean("log", "log_time") else "",
+        #     "SECCASK_DEBUG_ENCFS=1 " if conf.getboolean("log", "log_encfs") else "",
+        #     "SECCASK_PROFILE_IO=1 " if conf.getboolean("log", "log_io") else "",
+        #     conf.get(section_name, "gramine_path"),
+        #     conf.get(section_name, "gramine_manifest_path"),
+        #     "ratls"
+        #     if conf.is_sgx_enabled and conf.getboolean("ratls", "enable")
+        #     else "tls",
+        #     id,
+        #     conf.get("coordinator", "worker_manager_port"),
+        #     temp_file_name,
+        #     f"/opt/intel/oneapi/vtune/2023.0.0/bin64/vtune -collect memory-consumption -result-dir /home/mlcask/sgx/seccask2/test/w-{time.time()} -target-pid $!",
+        # ).split()
+
         if conf.getboolean("scheduler", "__debug_worker_creation_dry_run") is True:
             self.logger.warn(" ".join(cmds))
             self.logger.warn(
@@ -162,7 +203,8 @@ class Scheduler:
             )
         else:
             self.logger.debug(f"CLI CMD: {' '.join(cmds)}")
-            self.sshclient.exec_command("PYTHONUNBUFFERED=1 " + " ".join(cmds))
+            # self.logger.debug(f"ENV: {os.environ}")
+            self.sshclient.exec_command(" ".join(cmds))
 
     def cache_worker(self, worker: "wc.BaseWorkerConnection"):
         self._active_workers.remove(worker)
@@ -177,7 +219,9 @@ class Scheduler:
         return len(self._active_workers) + len(self._cached_workers) >= self._num_slot
 
     def get_compatible_worker_sync(
-        self, component: p.Component, callback: Callable[[str], None],
+        self,
+        component: p.Component,
+        callback: Callable[[str], None],
     ) -> None:
         self.logger.debug(f"Component {component} getting compatible worker")
         for w in self._cached_workers:

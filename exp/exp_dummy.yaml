@@ -1,0 +1,16 @@
+name: Scikit-Learn for MNIST784
+env:
+  # test_source_base: /home/mlcask/sgx/test-source/
+  test_source_base: /home/mlcask/sgx/test-source-enc/
+  workspace_base: /home/mlcask/seccask-temp/
+datasets:
+  - dataset_mnist784
+libraries:
+  - dummy
+pipeline:
+  - { type: dataset, name: dataset_mnist784 }
+  - { type: library, name: dummy }
+tasks:
+  - action: commit_libs
+  - action: create_pipeline
+    versions: [[0, 0], [0, 0]]

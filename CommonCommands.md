@@ -16,7 +16,17 @@ cd ../gramine_manifest; make clean; make; make SGX=1; cd ../build/
 ### Gramine: Change Gramine Python executable path
 
 ```bash
-sudo find /usr/local/bin -name gramine* -exec sed -i 's/\/usr\/bin\/python3/\/usr\/bin\/env python3/' {} \;
+# Build Gramine
+meson setup build/ --buildtype=debug -Ddirect=enabled -Dsgx=enabled -Ddcap=enabled
+# Change Python executable path
+sudo find /usr/local/bin -name 'gramine*' -exec sed -i 's/\/usr\/bin\/python3/\/usr\/bin\/env python3/' {} \;
+# Remove previous graminelibos installation
+rm -rf ~/scvenv-autolearn/lib/python3.9/site-packages/graminelibos
+# Install graminelibos utility scripts as Python package
+# (For v1.3 and below)
+cp -r /usr/local/lib/python3.9/site-packages/graminelibos ~/scvenv-autolearn/lib/python3.9/site-packages
+# (For v1.4)
+cp -r /usr/local/lib/python3.9/dist-packages/graminelibos ~/scvenv-autolearn/lib/python3.9/site-packages
 ```
 
 
@@ -39,11 +49,33 @@ ps aux | awk '/sgx\/loader/ || /libpal.so/'|  awk '{print $2}'  |  xargs kill -9
 ps aux | awk '/worker.py/ || /coordinator.py/ || /bin\/seccask/ || /gramine_manifest\/seccask/ || /libpal.so/'|  awk '{print $2}'  |  xargs kill -9 2>/dev/null
 ```
 
-### Run with Gramine-direct on SKLMNIST
+### Run on SKLMNIST
 
 ```bash
-PYTHONHOME=~/sgx/lib/cpython-3.9.13-install PYTHONPATH=~/sgx/seccask2/install/pysrc gramine-direct ../gramine_manifest/seccask --coordinator --mode=tls --manifest=sklmnist
+# No Gramine
+## Use seccask-exp.py
+python seccask-exp.py --setup untrusted sklmnist
+## Manual
+APP_HOME=~/sgx/seccask2 PYTHONHOME=~/sgx/lib/cpython-3.9.13-install PYTHONPATH=~/sgx/seccask2/pysrc ~/sgx/seccask2/build/bin/seccask --coordinator --mode=tls --manifest=sklmnist
+# Gramine (Direct)
+## Use seccask-exp.py
+python seccask-exp.py --setup direct sklmnist
+## Manual
+gramine-direct ../gramine_manifest/seccask --coordinator --mode=tls --manifest=sklmnist
+# Gramine (SGX)
+## Use seccask-exp.py
+python seccask-exp.py --setup sgx sklmnist
+## Manual
+gramine-sgx ../gramine_manifest/seccask --coordinator --mode=tls --manifest=sklmnist
 ```
+
+### Run on AutoLearn
+
+```bash
+SECCASK_PROFILE_IO=1 APP_HOME=/home/mlcask/sgx/seccask2 PYTHONHOME=/home/mlcask/sgx/lib/cpython-3.9.13-install PYTHONPATH=/home/mlcask/sgx/seccask2/pysrc gramine-direct ../gramine_manifest/seccask --coordinator --mode=ratls --manifest=cs_autolearn -k SECCASK_TEST_KEY
+```
+
+#### Gramine (SGX)
 
 ## EncFS
 
@@ -99,4 +131,10 @@ cd .. && rm -rf ./install && git worktree add ./install -f --no-checkout --detac
 python imagenet_to_gcs.py --raw_data_dir=/data0/mlcask/ILSVRC/Data/CLS-LOC --local_scratch_dir=. --nogcs_upload
 
 taskset -c 0 gramine-sgx ../gramine_manifest/encfspython --key ENCFSPYTHON --input imagenet_to_gcs.py --args --raw_data_dir=/data0/mlcask/ILSVRC/Data/CLS-LOC,--local_scratch_dir=/mnt/ramdisk/encfs,--nogcs_upload > sgx-encfs_minfa-aes256sha256-avx2.log 2>&1
+```
+
+### Clean Python Cache
+
+```bash
+find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
 ```
