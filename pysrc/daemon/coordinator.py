@@ -21,7 +21,7 @@ def on_new_lifecycle(manifest_name: str):
     import exp_runner
 
     manifest_path = os.path.abspath(
-        os.path.join(env.home, "exp", f"exp_{manifest_name}.yaml")
+        os.path.join(env.home, "exp", f"{manifest_name}.yaml")
     )
 
     logger = LogUtils.get_default_named_logger("ExpRunner")

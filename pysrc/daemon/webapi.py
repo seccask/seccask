@@ -48,30 +48,30 @@ class WebAPI:
             consumer = asyncio.create_task(receiving())
             await asyncio.gather(producer, consumer)
 
-        # @app.route("/pipelines")
-        # async def pipelines():
-        #     return await self.make_response(
-        #         self._coordinator.task_monitor.pipelines_info_dict
-        #     )
+        @app.route("/pipelines")
+        async def pipelines():
+            return await self.make_response(
+                self._coordinator.task_monitor.pipelines_info_dict
+            )
 
-        # @app.websocket("/pipelines_push")
-        # async def pipelines_push():
-        #     async def sending():
-        #         while True:
-        #             await self._coordinator.task_monitor.wait("pipeline_update")
-        #             await websocket.send(
-        #                 json.dumps(self._coordinator.task_monitor.pipelines_info_dict)
-        #             )
+        @app.websocket("/pipelines_push")
+        async def pipelines_push():
+            async def sending():
+                while True:
+                    await self._coordinator.task_monitor.wait("pipeline_update")
+                    await websocket.send(
+                        json.dumps(self._coordinator.task_monitor.pipelines_info_dict)
+                    )
 
-        #     producer = asyncio.create_task(sending())
-        #     consumer = asyncio.create_task(receiving())
-        #     await asyncio.gather(producer, consumer)
+            producer = asyncio.create_task(sending())
+            consumer = asyncio.create_task(receiving())
+            await asyncio.gather(producer, consumer)
 
-        # @app.route("/pipeline/<pipeline_hash>")
-        # async def pipeline_info(pipeline_hash):
-        #     return await self.make_response(
-        #         self._coordinator.task_monitor.get_pipeline_info_dict(pipeline_hash)
-        #     )
+        @app.route("/pipeline/<pipeline_hash>")
+        async def pipeline_info(pipeline_hash):
+            return await self.make_response(
+                self._coordinator.task_monitor.get_pipeline_info_dict(pipeline_hash)
+            )
 
         @app.route("/logs")
         async def logs():
@@ -105,16 +105,16 @@ class WebAPI:
                 log = f.read()
             return await self.make_response({"id": worker_id, "log": log})
 
-        # @app.route("/start_exp/<exp_name>")
-        # async def start_exp(exp_name):
-        #     success = self._coordinator._job_lock.acquire(blocking=False)
-        #     if not success:
-        #         return {"status": "err", "msg": "A job has already been started."}
+        @app.route("/start_exp/<exp_name>")
+        async def start_exp(exp_name):
+            success = self._coordinator._job_lock.acquire(blocking=False)
+            if not success:
+                return {"status": "err", "msg": "A job has already been started."}
 
-        #     self._coordinator.emit_msg(Message("WebAPI", "start", [f"exp_{exp_name}"]))
-        #     return {"status": "ok", "msg": f"Experiment {exp_name} started."}
+            self._coordinator.emit_msg(Message("WebAPI", "start", [f"exp_{exp_name}"]))
+            return {"status": "ok", "msg": f"Experiment {exp_name} started."}
 
-        # self._app = app
+        self._app = app
 
     async def make_response(self, content: Any, islist=False):
         if islist:
@@ -130,9 +130,9 @@ class WebAPI:
 
         return res
 
-    # def start(self):
-    #     self._app.run(
-    #         host=conf.get("coordinator", "host"),
-    #         port=conf.getint("coordinator", "webapi_port"),
-    #         loop=self._loop,
-    #     )
+    def start(self):
+        self._app.run(
+            host=conf.get("coordinator", "host"),
+            port=conf.getint("coordinator", "webapi_port"),
+            loop=self._loop,
+        )

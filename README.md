@@ -96,7 +96,7 @@ See commented configuration file `.conf/config.ini`.
 
 ## Experiments
 
-SecCask supports running experiments specified by *experiment manifests*. Sample manifests are available under `exp/` directory. The `$EXP_NAME` in the experiment running commands are that of the manifest file name without `exp_` prefix and file extension. For example, if you want to execute the experiment specified in `exp_mlp2.yaml`, `$EXP_NAME` should be `mlp2`.
+SecCask supports running experiments specified by *experiment manifests*. Sample manifests are available under `exp/` directory. The `$EXP_NAME` in the experiment running commands are that of the manifest file name without `.yaml`. For example, to execute the experiment specified by `mlp2.yaml`, set `$EXP_NAME` to `mlp2`.
 
 Please download the experimental workflow from [this link](https://drive.google.com/file/d/1owR_Pef4BPoitDgjZ46HttP75nh45R0O/view?usp=sharing) and extract all components to `$EXP_PREFIX`. The YAML files in the `exp/` directory are required to be modified as well:
 ```yaml

@@ -1,4 +1,4 @@
-# SecCask 2 Common commands
+# SecCask 2 Common Commands
 
 ## Build
 
@@ -36,7 +36,7 @@ cp -r /usr/local/lib/python3.9/dist-packages/graminelibos ~/scvenv-autolearn/lib
 
 ```bash
 # In repo root folder
-./kill_processes.sh ; ./clean_cache.sh ; ./clean_storage.sh
+./clean.sh -csp
 ```
 
 ### Forcely kill running enclaves (Use when starting by shell scripts)
@@ -137,4 +137,8 @@ taskset -c 0 gramine-sgx ../gramine_manifest/encfspython --key ENCFSPYTHON --inp
 
 ```bash
 find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+
+# or
+
+./clean.sh -c
 ```
