@@ -1,6 +1,9 @@
 #pragma once
 
 #include <INIReader.h>
+#include <limits.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -46,6 +49,8 @@ class Config : public INIReader {
                                    const std::string& default_value) {
     std::string result = Get().GetString(section, name, default_value);
     boost::replace_all(result, "$HOME", std::getenv("HOME"));
+    boost::replace_all(result, "$USER", Get().User());
+    boost::replace_all(result, "$SCWD", std::getenv("PWD"));
     return result;
   }
 
@@ -68,9 +73,19 @@ class Config : public INIReader {
   inline static std::string MRSigner() {
     return Get().GetStr("ratls", "mrsigner", "");
   }
+  inline static std::string User() { return Get().user_; }
 
  private:
-  Config(const std::string& filename) : INIReader(filename) {}
+  Config(const std::string& filename)
+      : INIReader(filename), user_(GetCurrentUserName()) {}
+
+  inline static std::string GetCurrentUserName() {
+    struct passwd* pw = getpwuid(geteuid());
+    return pw ? pw->pw_name : std::string{};
+  }
+
+  std::string user_;
+  std::string scwd_;
 
   inline static constexpr const char* kEnvVar = "APP_HOME";
   inline static constexpr const char* kConfigFilePath = ".conf/config.ini";

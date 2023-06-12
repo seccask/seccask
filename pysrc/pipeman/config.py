@@ -49,6 +49,7 @@ class Configuration:
         self._escape_dict = {
             "$HOME": str(Path.home()),
             "$USER": pwd.getpwuid(os.getuid()).pw_name,
+            "$SCWD": os.getcwd(),
         }
         self._parser.set(
             "env", "is_sgx_enabled", "true" if self.is_sgx_enabled else "false"
